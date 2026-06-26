@@ -332,7 +332,7 @@
     <h1>📊 AID - Estudio</h1>
     <p>Análisis Inteligente de Datos</p>
     <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar"></div></div>
-    <div class="progress-text" id="progressText">0 de 13 temas completados</div>
+    <div class="progress-text" id="progressText">0 de 14 temas completados</div>
   </div>
   <ul class="nav-list" id="navList">
     <li><a href="#" onclick="showTopic(0)">1. Preparación de Datos y Muestreo</a></li>
@@ -348,6 +348,7 @@
     <li><a href="#" onclick="showTopic(10)">11. Regresión Lineal (Simple y Múltiple)</a></li>
     <li><a href="#" onclick="showTopic(11)">12. Regresión Logística, SVM, KNN</a></li>
     <li><a href="#" onclick="showTopic(12)">13. Matriz de Confusión y Curva ROC</a></li>
+    <li><a href="#" onclick="showTopic(13)">📝 Trabajos Prácticos</a></li>
   </ul>
 </aside>
 
@@ -1991,6 +1992,430 @@ svm(y ~ ., data = train, kernel = "radial")
 </div>
 </div>
 
+<!-- ==================== TOPIC 13: TRABAJOS PRÁCTICOS ==================== -->
+<div class="topic-section" id="topic13">
+<h2>📝 Trabajos Prácticos</h2>
+
+<div class="summary-card">
+<h3>📋 Resumen General de los Trabajos Prácticos</h3>
+
+<h4>TP1 – Dirty Cafe Sales (Limpieza y Exploración de Datos)</h4>
+<ul>
+  <li>Exploración y calidad de datos: lectura de CSV, inspección de tipos de variables, detección de valores faltantes (NA/ERROR/UNKNOWN)</li>
+  <li>Identificación de valores sucios por columna (Item, Quantity, Payment Method, Location)</li>
+  <li>Resumen numérico: media, mediana, desvío estándar, percentiles</li>
+  <li>Detección de outliers con la regla del IQR (Q1 − 1.5·IQR, Q3 + 1.5·IQR)</li>
+  <li>Patrones temporales: transacciones por día de semana y por mes</li>
+  <li>Limpieza e imputación con reglas: completar Price Per Unit por menú, completar Quantity/Price/Total cuando falta solo uno, imputación final por moda</li>
+</ul>
+
+<h4>TP2 – Test de Hipótesis, Bootstrap y Distancias</h4>
+<ul>
+  <li>Conceptos: tamaño muestral, potencia, estandarización z-score, validación cruzada</li>
+  <li>Estadísticos descriptivos de una cohorte: media, mediana, desvíos estándar, correlaciones</li>
+  <li>Z-test bilateral para media con σ conocida</li>
+  <li>T-test bilateral de una muestra</li>
+  <li>Test de normalidad Shapiro-Wilk</li>
+  <li>Test t de Welch para dos muestras independientes</li>
+  <li>Chi-cuadrado de independencia (tablas de contingencia)</li>
+  <li>Test de Dixon para detección de outliers</li>
+  <li>Bootstrap para intervalos de confianza de la mediana</li>
+  <li>Distancias: Euclídea, Manhattan, Chebyshev, coseno y Jaccard</li>
+  <li>Validación cruzada k-fold</li>
+</ul>
+
+<h4>TP3 – Análisis de Varianza (ANOVA)</h4>
+<ul>
+  <li>Comparación de más de dos poblaciones usando ANOVA a un factor</li>
+  <li>Verificación de supuestos: normalidad (Shapiro-Wilk, Q-Q plot) y homocedasticidad (Levene, Bartlett)</li>
+  <li>Estadístico F, tabla ANOVA y descomposición de varianzas</li>
+  <li>Pruebas post-hoc: Tukey HSD</li>
+  <li>Alternativa no paramétrica: Kruskal-Wallis</li>
+  <li>Limitaciones y consideraciones éticas del diseño experimental</li>
+</ul>
+
+<h4>TP5 – ANOVA y Visualización Multivariada</h4>
+<ul>
+  <li>Contexto educativo: comparación de 3 métodos de enseñanza con 18 estudiantes</li>
+  <li>Análisis exploratorio: estadísticos descriptivos y boxplots comparativos</li>
+  <li>Verificación rigurosa de supuestos para ANOVA</li>
+  <li>Plantear hipótesis nula y alternativa formalmente</li>
+  <li>Interpretación del estadístico F (MCentro / MCDentro)</li>
+  <li>Comparaciones post-hoc con Tukey HSD</li>
+  <li>Diferencia entre significancia estadística e importancia práctica</li>
+  <li>Análisis crítico: limitaciones del estudio y manejo de outliers</li>
+</ul>
+
+<h4>TP6 – Regresión Logística</h4>
+<ul>
+  <li>Simulación de datos observacionales: vacuna contra gripe (200 personas)</li>
+  <li>Variables: vacunado, zona (urbana/rural), enfermo</li>
+  <li>Modelo simple: regresión logística con vacunación como predictora</li>
+  <li>Cálculo de Odds Ratio (OR) y efectividad de la vacuna</li>
+  <li>Modelo ajustado: incluir zona de residencia como variable de control</li>
+  <li>Concepto de variable confusora (confounder)</li>
+  <li>Limitaciones de estudios observacionales vs ensayos clínicos aleatorizados</li>
+  <li>Causalidad vs asociación: criterios de Bradford Hill</li>
+</ul>
+</div>
+
+<div class="quiz-container">
+<h3>🎯 Quiz: TP1 – Dirty Cafe Sales</h3>
+
+<div class="quiz-question" id="q13_1">
+<p>1. En el TP1, ¿qué se considera como valor "sucio" en el dataset?</p>
+<div class="options">
+<label><input type="radio" name="q13_1" value="a"> Solo valores NA</label>
+<label><input type="radio" name="q13_1" value="b"> Valores NA, ERROR y UNKNOWN</label>
+<label><input type="radio" name="q13_1" value="c"> Solo strings vacíos</label>
+<label><input type="radio" name="q13_1" value="d"> Valores negativos y cero</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_1','b')">Verificar</button>
+<div class="feedback" id="fb_q13_1"></div>
+</div>
+
+<div class="quiz-question" id="q13_2">
+<p>2. ¿Cómo se completa Price Per Unit cuando está sucio y el Item es válido?</p>
+<div class="options">
+<label><input type="radio" name="q13_2" value="a"> Se elimina la fila</label>
+<label><input type="radio" name="q13_2" value="b"> Se reemplaza por la media de Price Per Unit</label>
+<label><input type="radio" name="q13_2" value="c"> Se asigna el precio del menú correspondiente al Item</label>
+<label><input type="radio" name="q13_2" value="d"> Se deja como NA</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_2','c')">Verificar</button>
+<div class="feedback" id="fb_q13_2"></div>
+</div>
+
+<div class="quiz-question" id="q13_3">
+<p>3. ¿Qué fórmula relaciona Quantity, Price Per Unit y Total Spent?</p>
+<div class="options">
+<label><input type="radio" name="q13_3" value="a"> Total = Quantity + Price Per Unit</label>
+<label><input type="radio" name="q13_3" value="b"> Total = Quantity × Price Per Unit</label>
+<label><input type="radio" name="q13_3" value="c"> Total = Quantity / Price Per Unit</label>
+<label><input type="radio" name="q13_3" value="d"> Total = Price Per Unit / Quantity</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_3','b')">Verificar</button>
+<div class="feedback" id="fb_q13_3"></div>
+</div>
+
+<div class="quiz-question" id="q13_4">
+<p>4. ¿Qué regla se usa para detectar outliers en el TP1?</p>
+<div class="options">
+<label><input type="radio" name="q13_4" value="a"> Media ± 2 desvíos estándar</label>
+<label><input type="radio" name="q13_4" value="b"> Valores menores a Q1 − 1.5·IQR o mayores a Q3 + 1.5·IQR</label>
+<label><input type="radio" name="q13_4" value="c"> Test de Grubbs</label>
+<label><input type="radio" name="q13_4" value="d"> Z-score mayor a 3</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_4','b')">Verificar</button>
+<div class="feedback" id="fb_q13_4"></div>
+</div>
+
+<div class="quiz-question" id="q13_5">
+<p>5. Si Price Per Unit es 3.0 y Item está sucio, ¿qué Item se asigna?</p>
+<div class="options">
+<label><input type="radio" name="q13_5" value="a"> Juice</label>
+<label><input type="radio" name="q13_5" value="b"> Cake</label>
+<label><input type="radio" name="q13_5" value="c"> Cookie</label>
+<label><input type="radio" name="q13_5" value="d"> Tea</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_5','b')">Verificar</button>
+<div class="feedback" id="fb_q13_5"></div>
+</div>
+
+<div class="quiz-question" id="q13_6">
+<p>6. ¿Cuál es el precio del menú para Sandwich y Smoothie?</p>
+<div class="options">
+<label><input type="radio" name="q13_6" value="a"> $3.0</label>
+<label><input type="radio" name="q13_6" value="b"> $4.0</label>
+<label><input type="radio" name="q13_6" value="c"> $5.0</label>
+<label><input type="radio" name="q13_6" value="d"> $2.0</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_6','b')">Verificar</button>
+<div class="feedback" id="fb_q13_6"></div>
+</div>
+
+<div class="quiz-question" id="q13_7">
+<p>7. ¿Qué tipo de gráfico es más adecuado para visualizar transacciones por día de semana?</p>
+<div class="options">
+<label><input type="radio" name="q13_7" value="a"> Boxplot</label>
+<label><input type="radio" name="q13_7" value="b"> Histograma de densidad</label>
+<label><input type="radio" name="q13_7" value="c"> Gráfico de barras</label>
+<label><input type="radio" name="q13_7" value="d"> Dispersión</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_7','c')">Verificar</button>
+<div class="feedback" id="fb_q13_7"></div>
+</div>
+
+</div>
+
+<div class="quiz-container">
+<h3>🎯 Quiz: TP2 – Test de Hipótesis y Bootstrap</h3>
+
+<div class="quiz-question" id="q13_8">
+<p>8. Si mantienes n fijo y bajas α (nivel de significación), ¿qué pasa con la potencia del test?</p>
+<div class="options">
+<label><input type="radio" name="q13_8" value="a"> Sube</label>
+<label><input type="radio" name="q13_8" value="b"> Baja</label>
+<label><input type="radio" name="q13_8" value="c"> No cambia</label>
+<label><input type="radio" name="q13_8" value="d"> Pasa a ser 0.50</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_8','b')">Verificar</button>
+<div class="feedback" id="fb_q13_8"></div>
+</div>
+
+<div class="quiz-question" id="q13_9">
+<p>9. ¿Qué prueba se usa cuando la desviación estándar poblacional es conocida y se quiere contrastar una media?</p>
+<div class="options">
+<label><input type="radio" name="q13_9" value="a"> t-test pareado</label>
+<label><input type="radio" name="q13_9" value="b"> z-test</label>
+<label><input type="radio" name="q13_9" value="c"> Chi-cuadrado</label>
+<label><input type="radio" name="q13_9" value="d"> Shapiro-Wilk</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_9','b')">Verificar</button>
+<div class="feedback" id="fb_q13_9"></div>
+</div>
+
+<div class="quiz-question" id="q13_10">
+<p>10. En una validación cruzada 5-fold, cada observación queda en validación ¿cuántas veces?</p>
+<div class="options">
+<label><input type="radio" name="q13_10" value="a"> 0 veces</label>
+<label><input type="radio" name="q13_10" value="b"> 1 vez</label>
+<label><input type="radio" name="q13_10" value="c"> 5 veces</label>
+<label><input type="radio" name="q13_10" value="d"> Depende del modelo</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_10','b')">Verificar</button>
+<div class="feedback" id="fb_q13_10"></div>
+</div>
+
+<div class="quiz-question" id="q13_11">
+<p>11. El test de Shapiro-Wilk se utiliza para verificar:</p>
+<div class="options">
+<label><input type="radio" name="q13_11" value="a"> Igualdad de varianzas</label>
+<label><input type="radio" name="q13_11" value="b"> Normalidad de los datos</label>
+<label><input type="radio" name="q13_11" value="c"> Independencia de las observaciones</label>
+<label><input type="radio" name="q13_11" value="d"> Correlación entre variables</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_11','b')">Verificar</button>
+<div class="feedback" id="fb_q13_11"></div>
+</div>
+
+<div class="quiz-question" id="q13_12">
+<p>12. ¿Qué test se usa para detectar un outlier en una muestra pequeña (como en el dataset de Dixon)?</p>
+<div class="options">
+<label><input type="radio" name="q13_12" value="a"> Test de Levene</label>
+<label><input type="radio" name="q13_12" value="b"> Test de Dixon (estadístico Q)</label>
+<label><input type="radio" name="q13_12" value="c"> Test de Fisher</label>
+<label><input type="radio" name="q13_12" value="d"> Test de Tukey</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_12','b')">Verificar</button>
+<div class="feedback" id="fb_q13_12"></div>
+</div>
+
+<div class="quiz-question" id="q13_13">
+<p>13. ¿Qué técnica de remuestreo se usa para estimar un intervalo de confianza de la mediana sin asumir normalidad?</p>
+<div class="options">
+<label><input type="radio" name="q13_13" value="a"> Permutación</label>
+<label><input type="radio" name="q13_13" value="b"> Bootstrap</label>
+<label><input type="radio" name="q13_13" value="c"> Jackknife</label>
+<label><input type="radio" name="q13_13" value="d"> Cross-validation</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_13','b')">Verificar</button>
+<div class="feedback" id="fb_q13_13"></div>
+</div>
+
+<div class="quiz-question" id="q13_14">
+<p>14. ¿Qué medida de distancia se usa para comparar vectores binarios (presencia/ausencia)?</p>
+<div class="options">
+<label><input type="radio" name="q13_14" value="a"> Euclídea</label>
+<label><input type="radio" name="q13_14" value="b"> Manhattan</label>
+<label><input type="radio" name="q13_14" value="c"> Coeficiente de Jaccard</label>
+<label><input type="radio" name="q13_14" value="d"> Chebyshev</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_14','c')">Verificar</button>
+<div class="feedback" id="fb_q13_14"></div>
+</div>
+
+</div>
+
+<div class="quiz-container">
+<h3>🎯 Quiz: TP3 y TP5 – ANOVA</h3>
+
+<div class="quiz-question" id="q13_15">
+<p>15. ¿Por qué no es apropiado hacer múltiples pruebas t independientes en lugar de un ANOVA?</p>
+<div class="options">
+<label><input type="radio" name="q13_15" value="a"> Porque el ANOVA es más rápido computacionalmente</label>
+<label><input type="radio" name="q13_15" value="b"> Porque se infla el error Tipo I (acumulación de pruebas)</label>
+<label><input type="radio" name="q13_15" value="c"> Porque los datos no son normales</label>
+<label><input type="radio" name="q13_15" value="d"> Porque las varianzas son desiguales</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_15','b')">Verificar</button>
+<div class="feedback" id="fb_q13_15"></div>
+</div>
+
+<div class="quiz-question" id="q13_16">
+<p>16. ¿Qué supuestos debe cumplir el ANOVA paramétrico?</p>
+<div class="options">
+<label><input type="radio" name="q13_16" value="a"> Normalidad, homocedasticidad e independencia</label>
+<label><input type="radio" name="q13_16" value="b"> Solo normalidad</label>
+<label><input type="radio" name="q13_16" value="c"> Solo independencia</label>
+<label><input type="radio" name="q13_16" value="d"> Normalidad y media igual a cero</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_16','a')">Verificar</button>
+<div class="feedback" id="fb_q13_16"></div>
+</div>
+
+<div class="quiz-question" id="q13_17">
+<p>17. ¿Qué prueba post-hoc se utiliza para determinar qué pares de grupos difieren después de un ANOVA significativo?</p>
+<div class="options">
+<label><input type="radio" name="q13_17" value="a"> Test de Shapiro-Wilk</label>
+<label><input type="radio" name="q13_17" value="b"> Test de Levene</label>
+<label><input type="radio" name="q13_17" value="c"> Prueba de Tukey HSD</label>
+<label><input type="radio" name="q13_17" value="d"> Test de Fisher</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_17','c')">Verificar</button>
+<div class="feedback" id="fb_q13_17"></div>
+</div>
+
+<div class="quiz-question" id="q13_18">
+<p>18. ¿Qué test se usa como alternativa no paramétrica al ANOVA de un factor?</p>
+<div class="options">
+<label><input type="radio" name="q13_18" value="a"> Test de Wilcoxon</label>
+<label><input type="radio" name="q13_18" value="b"> Test de Kruskal-Wallis</label>
+<label><input type="radio" name="q13_18" value="c"> Test de Mann-Whitney</label>
+<label><input type="radio" name="q13_18" value="d"> Test de Signos</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_18','b')">Verificar</button>
+<div class="feedback" id="fb_q13_18"></div>
+</div>
+
+<div class="quiz-question" id="q13_19">
+<p>19. En la tabla ANOVA, el estadístico F se calcula como:</p>
+<div class="options">
+<label><input type="radio" name="q13_19" value="a"> SCError / SCTrattamiento</label>
+<label><input type="radio" name="q13_19" value="b"> MCentro / MCDentro</label>
+<label><input type="radio" name="q13_19" value="c"> SCE / SCT</label>
+<label><input type="radio" name="q13_19" value="d"> MCDentro / MCentro</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_19','b')">Verificar</button>
+<div class="feedback" id="fb_q13_19"></div>
+</div>
+
+<div class="quiz-question" id="q13_20">
+<p>20. ¿Qué prueba se usa para verificar la igualdad de varianzas (homocedasticidad) en el TP5?</p>
+<div class="options">
+<label><input type="radio" name="q13_20" value="a"> Shapiro-Wilk</label>
+<label><input type="radio" name="q13_20" value="b"> Levene</label>
+<label><input type="radio" name="q13_20" value="c"> Chi-cuadrado</label>
+<label><input type="radio" name="q13_20" value="d"> Kolmogorov-Smirnov</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_20','b')">Verificar</button>
+<div class="feedback" id="fb_q13_20"></div>
+</div>
+
+</div>
+
+<div class="quiz-container">
+<h3>🎯 Quiz: TP6 – Regresión Logística</h3>
+
+<div class="quiz-question" id="q13_21">
+<p>21. ¿Qué función se usa en R para ajustar un modelo de regresión logística?</p>
+<div class="options">
+<label><input type="radio" name="q13_21" value="a"> lm(y ~ x, data = datos)</label>
+<label><input type="radio" name="q13_21" value="b"> glm(y ~ x, data = datos, family = binomial)</label>
+<label><input type="radio" name="q13_21" value="c"> aov(y ~ x, data = datos)</label>
+<label><input type="radio" name="q13_21" value="d"> t.test(y ~ x, data = datos)</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_21','b')">Verificar</button>
+<div class="feedback" id="fb_q13_21"></div>
+</div>
+
+<div class="quiz-question" id="q13_22">
+<p>22. Si el Odds Ratio (OR) de la vacuna es 0.38, ¿qué significa?</p>
+<div class="options">
+<label><input type="radio" name="q13_22" value="a"> Las personas vacunadas tienen 38% más riesgo de enfermarse</label>
+<label><input type="radio" name="q13_22" value="b"> Las personas vacunadas tienen los odds de enfermarse 0.38 veces los de las no vacunadas (efecto protector)</label>
+<label><input type="radio" name="q13_22" value="c"> La vacuna es ineficaz</label>
+<label><input type="radio" name="q13_22" value="d"> No hay diferencia entre grupos</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_22','b')">Verificar</button>
+<div class="feedback" id="fb_q13_22"></div>
+</div>
+
+<div class="quiz-question" id="q13_23">
+<p>23. ¿Qué es una variable confusora en el contexto del TP6?</p>
+<div class="options">
+<label><input type="radio" name="q13_23" value="a"> Una variable que se mide mal</label>
+<label><input type="radio" name="q13_23" value="b"> Una variable que influye tanto en la exposición como en el resultado</label>
+<label><input type="radio" name="q13_23" value="c"> Una variable que no tiene relación con el estudio</label>
+<label><input type="radio" name="q13_23" value="d"> Una variable que solo afecta al resultado</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_23','b')">Verificar</button>
+<div class="feedback" id="fb_q13_23"></div>
+</div>
+
+<div class="quiz-question" id="q13_24">
+<p>24. Si el OR de zona urbana es 1.58, ¿qué se puede concluir?</p>
+<div class="options">
+<label><input type="radio" name="q13_24" value="a"> Las personas urbanas tienen menor riesgo de enfermarse</label>
+<label><input type="radio" name="q13_24" value="b"> Las personas urbanas tienen mayor odds de enfermarse que las rurales</label>
+<label><input type="radio" name="q13_24" value="c"> La zona no influye en el riesgo</label>
+<label><input type="radio" name="q13_24" value="d"> La zona protege contra la gripe</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_24','b')">Verificar</button>
+<div class="feedback" id="fb_q13_24"></div>
+</div>
+
+<div class="quiz-question" id="q13_25">
+<p>25. ¿Por qué cambia la efectividad de la vacuna entre el modelo simple y el ajustado?</p>
+<div class="options">
+<label><input type="radio" name="q13_25" value="a"> Porque se cambiaron los datos</label>
+<label><input type="radio" name="q13_25" value="b"> Porque la zona de residencia actúa como variable confusora</label>
+<label><input type="radio" name="q13_25" value="c"> Porque el modelo ajustado tiene más errores</label>
+<label><input type="radio" name="q13_25" value="d"> Porque se usó un nivel de significación diferente</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_25','b')">Verificar</button>
+<div class="feedback" id="fb_q13_25"></div>
+</div>
+
+<div class="quiz-question" id="q13_26">
+<p>26. ¿Qué tipo de estudio es el del TP6?</p>
+<div class="options">
+<label><input type="radio" name="q13_26" value="a"> Ensayo clínico aleatorizado</label>
+<label><input type="radio" name="q13_26" value="b"> Estudio observacional</label>
+<label><input type="radio" name="q13_26" value="c"> Estudio longitudinal prospectivo</label>
+<label><input type="radio" name="q13_26" value="d"> Ensayo clínico doble ciego</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_26','b')">Verificar</button>
+<div class="feedback" id="fb_q13_26"></div>
+</div>
+
+<div class="quiz-question" id="q13_27">
+<p>27. ¿Qué medida de efectividad se calcula a partir del Odds Ratio?</p>
+<div class="options">
+<label><input type="radio" name="q13_27" value="a"> Efectividad = OR × 100</label>
+<label><input type="radio" name="q13_27" value="b"> Efectividad = (1 − OR) × 100</label>
+<label><input type="radio" name="q13_27" value="c"> Efectividad = OR / 100</label>
+<label><input type="radio" name="q13_27" value="d"> Efectividad = log(OR) × 100</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_27','b')">Verificar</button>
+<div class="feedback" id="fb_q13_27"></div>
+</div>
+
+<div class="quiz-question" id="q13_28">
+<p>28. Para establecer causalidad, ¿qué se necesita además de asociación estadística?</p>
+<div class="options">
+<label><input type="radio" name="q13_28" value="a"> Solo más datos</label>
+<label><input type="radio" name="q13_28" value="b"> Aleatorización, criterios de Bradford Hill y reproducibilidad</label>
+<label><input type="radio" name="q13_28" value="c"> Un nivel de significación de 0.01</label>
+<label><input type="radio" name="q13_28" value="d"> Un modelo con más variables</label>
+</div>
+<button class="check-btn" onclick="checkAnswer('q13_28','b')">Verificar</button>
+<div class="feedback" id="fb_q13_28"></div>
+</div>
+
+</div>
+</div>
+
 </main>
 </div>
 
@@ -2073,6 +2498,34 @@ const quizData = {
   q12_6: { ans: 'c', exp: 'Sensibilidad = VP / (VP + FN): proporción de positivos correctamente detectados.' },
   q12_7: { ans: 'b', exp: 'El AUC es menos sensible al desequilibrio de clases que la Accuracy.' },
   q12_8: { ans: 'c', exp: 'Una curva diagonal indica modelo sin capacidad discriminatoria (como clasificación aleatoria).' }
+  ,q13_1: { ans: 'b', exp: 'En el TP1 se define como sucio cualquier valor NA, ERROR o UNKNOWN.' }
+  ,q13_2: { ans: 'c', exp: 'Si Price Per Unit está sucio y el Item es válido, se asigna el precio del menú correspondiente.' }
+  ,q13_3: { ans: 'b', exp: 'La relación es Total Spent = Quantity × Price Per Unit.' }
+  ,q13_4: { ans: 'b', exp: 'Se usa la regla del IQR: valores fuera de Q1 − 1.5·IQR o Q3 + 1.5·IQR.' }
+  ,q13_5: { ans: 'b', exp: 'Si Price Per Unit = 3.0, se asigna Cake (y no Juice) según las reglas del TP.' }
+  ,q13_6: { ans: 'b', exp: 'Tanto Sandwich como Smoothie tienen precio $4.0 en el menú.' }
+  ,q13_7: { ans: 'c', exp: 'Un gráfico de barras es ideal para frecuencias de categorías como días de semana.' }
+  ,q13_8: { ans: 'b', exp: 'Al bajar α manteniendo n fijo, la potencia del test disminuye.' }
+  ,q13_9: { ans: 'b', exp: 'Cuando σ poblacional es conocida, se usa el z-test.' }
+  ,q13_10: { ans: 'b', exp: 'En k-fold CV, cada observación queda en validación exactamente 1 vez.' }
+  ,q13_11: { ans: 'b', exp: 'El test de Shapiro-Wilk verifica la normalidad de los datos.' }
+  ,q13_12: { ans: 'b', exp: 'El test de Dixon (estadístico Q) detecta outliers en muestras pequeñas.' }
+  ,q13_13: { ans: 'b', exp: 'El bootstrap genera intervalos de confianza de la mediana sin asumir normalidad.' }
+  ,q13_14: { ans: 'c', exp: 'El coeficiente de Jaccard mide similitud entre conjuntos, ideal para variables binarias.' }
+  ,q13_15: { ans: 'b', exp: 'Múltiples pruebas t inflan el error Tipo I; el ANOVA lo controla en un solo test.' }
+  ,q13_16: { ans: 'a', exp: 'El ANOVA requiere normalidad, homocedasticidad e independencia de observaciones.' }
+  ,q13_17: { ans: 'c', exp: 'Tukey HSD determina qué pares de grupos difieren significativamente.' }
+  ,q13_18: { ans: 'b', exp: 'Kruskal-Wallis es la alternativa no paramétrica al ANOVA de un factor.' }
+  ,q13_19: { ans: 'b', exp: 'F = MCentro / MCDentro; valores grandes sugieren diferencias entre grupos.' }
+  ,q13_20: { ans: 'b', exp: 'El test de Levene verifica la igualdad de varianzas (homocedasticidad).' }
+  ,q13_21: { ans: 'b', exp: 'glm() con family=binomial ajusta regresión logística en R.' }
+  ,q13_22: { ans: 'b', exp: 'OR = 0.38 significa que los odds de enfermarse en vacunados son 0.38 veces los de no vacunados (efecto protector).' }
+  ,q13_23: { ans: 'b', exp: 'Una variable confusora influye tanto en la exposición como en el resultado.' }
+  ,q13_24: { ans: 'b', exp: 'OR = 1.58 indica mayor odds de enfermarse en zona urbana vs rural.' }
+  ,q13_25: { ans: 'b', exp: 'La zona de residencia es confusora: urbanos se vacunan más pero también se enferman más.' }
+  ,q13_26: { ans: 'b', exp: 'Es un estudio observacional, no un ensayo clínico aleatorizado.' }
+  ,q13_27: { ans: 'b', exp: 'Efectividad = (1 − OR) × 100, representando la reducción relativa del odds.' }
+  ,q13_28: { ans: 'b', exp: 'Se necesita aleatorización, criterios de Bradford Hill y reproducibilidad para inferir causalidad.' }
 };
 
 // State
@@ -2126,7 +2579,7 @@ function showTopic(idx) {
 function updateProgress() {
   // Count how many topics have at least one question answered
   const topicQuestionCounts = {};
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 14; i++) {
     topicQuestionCounts[i] = 0;
   }
   
@@ -2137,13 +2590,13 @@ function updateProgress() {
   });
   
   let completed = 0;
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 14; i++) {
     if (topicQuestionCounts[i] >= 3) completed++;
   }
   
-  const pct = Math.round((completed / 13) * 100);
+  const pct = Math.round((completed / 14) * 100);
   document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = completed + ' de 13 temas completados';
+  document.getElementById('progressText').textContent = completed + ' de 14 temas completados';
 }
 
 // Init
