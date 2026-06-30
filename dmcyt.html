@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudio DMCyT - Data Mining en Ciencia y Tecnología</title>
+<style>
+:root{--navy:#1b2a4a;--navy-light:#243558;--green:#2d6a4f;--green-light:#40916c;--green-dark:#1b4332;--bg:#0d1b2a;--card-bg:#1b2a4a;--text:#e0e0e0;--text-muted:#a0a0a0;--accent:#52b788;--correct:#40916c;--wrong:#e63946;--border:#2a3f5f;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:300px;background:var(--navy);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;transition:transform .3s;}
+.sidebar-header{padding:20px;background:var(--navy-light);border-bottom:1px solid var(--border);}
+.sidebar-header h1{font-size:18px;color:var(--accent);margin-bottom:5px;}
+.sidebar-header p{font-size:12px;color:var(--text-muted);}
+.progress-bar-container{margin-top:10px;background:var(--bg);border-radius:10px;height:8px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:10px;transition:width .5s;width:0%;}
+.progress-text{font-size:11px;color:var(--text-muted);margin-top:4px;text-align:right;}
+.nav-list{list-style:none;padding:10px 0;}
+.nav-list li{border-bottom:1px solid rgba(255,255,255,.05);}
+.nav-list a{display:block;padding:10px 20px;color:var(--text);text-decoration:none;font-size:13px;transition:all .2s;border-left:3px solid transparent;}
+.nav-list a:hover,.nav-list a.active{background:var(--navy-light);border-left-color:var(--accent);color:var(--accent);}
+.nav-list a .badge{display:inline-block;background:var(--accent);color:var(--bg);font-size:10px;padding:2px 6px;border-radius:8px;margin-left:8px;}
+.main{margin-left:300px;flex:1;padding:30px 40px;max-width:900px;}
+.topic{display:none;animation:fadeIn .3s;}
+.topic.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.topic h2{color:var(--accent);font-size:22px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.topic h3{color:var(--green-light);font-size:16px;margin:20px 0 10px;}
+.topic h4{color:var(--accent);font-size:14px;margin:15px 0 8px;}
+.topic p{margin-bottom:12px;font-size:14px;}
+.topic ul,.topic ol{margin:8px 0 15px 20px;font-size:14px;}
+.topic li{margin-bottom:6px;}
+.topic strong{color:var(--accent);}
+.mcq-section{margin-top:30px;padding-top:20px;border-top:1px solid var(--border);}
+.mcq-section h3{color:var(--accent);font-size:16px;margin-bottom:15px;}
+.question{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:15px;}
+.question p{font-weight:600;margin-bottom:12px;font-size:14px;}
+.options{list-style:none;padding:0;}
+.options li{padding:10px 15px;margin-bottom:6px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s;border:1px solid var(--border);}
+.options li:hover{background:rgba(82,183,136,.1);border-color:var(--accent);}
+.options li.correct{background:rgba(64,145,108,.2);border-color:var(--correct);color:var(--correct);}
+.options li.wrong{background:rgba(230,57,70,.15);border-color:var(--wrong);color:var(--wrong);}
+.options li.disabled{pointer-events:none;}
+.explanation{display:none;margin-top:12px;padding:10px 15px;background:rgba(82,183,136,.08);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;font-size:13px;color:var(--text-muted);}
+.explanation.show{display:block;}
+.score-bar{background:var(--navy-light);border-radius:8px;padding:15px 20px;margin-top:20px;display:flex;align-items:center;gap:15px;}
+.score-bar .score{font-size:24px;color:var(--accent);font-weight:700;}
+.score-bar .label{font-size:13px;color:var(--text-muted);}
+.hamburger{display:none;position:fixed;top:15px;left:15px;z-index:200;background:var(--navy);border:1px solid var(--border);color:var(--accent);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:18px;}
+.tab-bar{display:flex;gap:0;margin-bottom:25px;border-bottom:2px solid var(--border);padding-bottom:0;}
+.tab-bar a{padding:10px 20px;color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.tab-bar a:hover{color:var(--text);}
+.tab-bar a.active{color:var(--accent);border-bottom-color:var(--accent);}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;padding:20px;}.hamburger{display:block;}}
+</style>
+</head>
+<body>
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+<div class="layout">
+<nav class="sidebar">
+<div class="sidebar-header">
+<h1>🌐 DMCyT</h1>
+<p>Data Mining en Ciencia y Tecnología</p>
+<div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar"></div></div>
+<div class="progress-text" id="progressText">0/12 temas completados</div>
+</div>
+<ul class="nav-list" id="navList">
+<li><a href="#" data-topic="clase1" onclick="showTopic('clase1');return false;">Clase 1: Introducción a Grafos y Redes</a></li>
+<li><a href="#" data-topic="clase2" onclick="showTopic('clase2');return false;">Clase 2: Caracterización de Redes</a></li>
+<li><a href="#" data-topic="clase3" onclick="showTopic('clase3');return false;">Clase 3: Modelos de Redes (ER, WS, BA)</a></li>
+<li><a href="#" data-topic="clase4" onclick="showTopic('clase4');return false;">Clase 4: Centralidad y Propiedades</a></li>
+<li><a href="#" data-topic="clase5a" onclick="showTopic('clase5a');return false;">Clase 5a: Stochastic Block Model</a></li>
+<li><a href="#" data-topic="clase5b" onclick="showTopic('clase5b');return false;">Clase 5b: GraphRAG y LLMs</a></li>
+<li><a href="#" data-topic="clase7" onclick="showTopic('clase7');return false;">Clase 7: Estadística y p-Values</a></li>
+<li><a href="#" data-topic="clase8" onclick="showTopic('clase8');return false;">Clase 8: Reducción de Dimensionalidad</a></li>
+<li><a href="#" data-topic="clase9" onclick="showTopic('clase9');return false;">Clase 9: Clustering - Algoritmos</a></li>
+<li><a href="#" data-topic="clase10a" onclick="showTopic('clase10a');return false;">Clase 10a: Distancias y Similaridades</a></li>
+<li><a href="#" data-topic="clase10b" onclick="showTopic('clase10b');return false;">Clase 10b: Validación de Clustering</a></li>
+<li><a href="#" data-topic="clase12" onclick="showTopic('clase12');return false;">Clase 12: Aplicaciones de Clustering</a></li>
+</ul>
+<div style="padding:15px 20px;border-top:1px solid var(--border);">
+<a href="index.html" style="color:var(--text-muted);text-decoration:none;font-size:12px;">← Volver al inicio</a>
+</div>
+</nav>
+<main class="main">
+<div class="tab-bar">
+<a href="aid.html">📊 AID</a>
+<a href="dmcyt.html" class="active">🌐 DMCyT</a>
+</div>
+<div class="topic" id="topic-clase1">
+<h2>Clase 1: Introducción a Grafos y Redes</h2>
+<div class="content">
+<h3>Sistemas Complejos y Redes</h3>
+<p>"El todo es más que la suma de las partes." Detrás de todo sistema complejo existe una <strong>red</strong> que define la relación (enlace) entre sus componentes (nodos).</p>
+<h3>Network Science</h3>
+<p>Estudio de redes del mundo real: ubicuas, no regulares pero tampoco aleatorias, estructura no trivial, propiedades universales. <strong>Insight:</strong> estudiando sus topologías entenderemos aspectos de su organización.</p>
+<h3>Variedad de Redes</h3>
+<ul><li><strong>Tecnológicas:</strong> Internet (routers ↔ conexiones), Red eléctrica</li><li><strong>Información:</strong> WWW (páginas ↔ links), Tráfico de internet</li><li><strong>Sociales:</strong> Facebook (amistades), Relaciones económicas</li><li><strong>Biológicas:</strong> Interacción de proteínas, Conectoma cerebral</li></ul>
+<h3>Origen: Puentes de Königsberg (Euler, 1735)</h3>
+<p>Euler demostró que no existe un camino que pase por los 7 puentes sin repetir. "Este tipo de camino no puede existir en un grafo con más de 2 nodos de grado impar."</p>
+<h3>Definiciones Fundamentales</h3>
+<ul><li><strong>Grafo:</strong> G = (V, E) donde V = nodos, E = enlaces</li><li><strong>Matriz de adyacencia (A):</strong> representa conexiones</li><li><strong>Lista de adyacencia:</strong> alternativa eficiente</li></ul>
+<h3>Tipos de Grafos</h3>
+<ul><li><strong>Binarios simples:</strong> sin multigrafo ni lazos</li><li><strong>Multigrafo:</strong> múltiples enlaces entre dos nodos</li><li><strong>Con lazos:</strong> nodo conectado consigo mismo</li><li><strong>Ponderados:</strong> enlaces con peso (representaciones probabilísticas)</li><li><strong>Dirigidos:</strong> conexiones con sentido</li><li><strong>Bipartitos:</strong> nodos en dos conjuntos U y V, enlaces solo entre ellos</li><li><strong>Árboles:</strong> grafo conectado sin ciclos, tiene n-1 enlaces</li></ul>
+<h3>Grado y Distribución de Grado</h3>
+<ul><li><strong>Grado (kᵢ):</strong> número de enlaces de un nodo</li><li><strong>pₖ:</strong> probabilidad de que un nodo tenga grado k</li><li>Límite N >> ⟨k⟩: distribución tiende a <strong>Poisson</strong></li><li><strong>Scale-free:</strong> pₖ ~ k⁻ᵞ (ley de potencia, redes reales)</li><li><strong>Hubs:</strong> nodos de alto grado que generan atajos</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase1-0">
+<p>1. ¿Qué es un grafo bipartito?</p>
+<ul class="options">
+<li data-qid="clase1-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Todos los nodos con el mismo grado</li>
+<li data-qid="clase1-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Nodos en dos conjuntos U y V, enlaces solo entre ellos</li>
+<li data-qid="clase1-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Grafo dirigido con dos componentes</li>
+<li data-qid="clase1-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Grafo ponderado con dos pesos</li>
+</ul>
+<div class="explanation" id="exp-clase1-0">En un grafo bipartito los nodos se dividen en dos conjuntos disjuntos y cada enlace conecta un nodo de U con uno de V.</div>
+</div>
+<div class="question" id="q-clase1-1">
+<p>2. En redes scale-free, ¿cómo se comporta pₖ?</p>
+<ul class="options">
+<li data-qid="clase1-1" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) Uniforme</li>
+<li data-qid="clase1-1" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) Poisson</li>
+<li data-qid="clase1-1" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) Ley de potencia pₖ ~ k⁻ᵞ</li>
+<li data-qid="clase1-1" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Normal</li>
+</ul>
+<div class="explanation" id="exp-clase1-1">Las redes scale-free tienen distribuciones en ley de potencia, implica existencia de hubs.</div>
+</div>
+<div class="question" id="q-clase1-2">
+<p>3. ¿Cuántos enlaces tiene un árbol con n nodos?</p>
+<ul class="options">
+<li data-qid="clase1-2" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) n</li>
+<li data-qid="clase1-2" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) n+1</li>
+<li data-qid="clase1-2" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) n-1</li>
+<li data-qid="clase1-2" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) n(n-1)/2</li>
+</ul>
+<div class="explanation" id="exp-clase1-2">Un árbol conectado sin ciclos tiene exactamente n-1 enlaces.</div>
+</div>
+<div class="question" id="q-clase1-3">
+<p>4. ¿Qué librería de Python es principal para grafos?</p>
+<ul class="options">
+<li data-qid="clase1-3" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) pandas</li>
+<li data-qid="clase1-3" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) NetworkX</li>
+<li data-qid="clase1-3" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) scikit-learn</li>
+<li data-qid="clase1-3" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) matplotlib</li>
+</ul>
+<div class="explanation" id="exp-clase1-3">NetworkX es la librería principal para análisis de grafos. También igraph y graph-tool.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase1">0/4</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase2">
+<h2>Clase 2: Caracterización de Redes</h2>
+<div class="content">
+<h3>Recorridos y Caminos</h3>
+<ul><li><strong>Recorrido (walk):</strong> secuencia de enlaces donde nodos terminales de eᵢ son terminales de eᵢ₋₁ y eᵢ₊₁</li><li><strong>Camino (path):</strong> recorrido con enlaces todos diferentes</li><li><strong>Longitud:</strong> número de enlaces</li><li><strong>Camino más corto:</strong> longitud mínima entre dos nodos</li></ul>
+<h3>Distancias en la Red</h3>
+<ul><li><strong>Distancia entre nodos:</strong> longitud del camino más corto</li><li><strong>Pesos como similaridades:</strong> se maximiza (no minimiza)</li></ul>
+<h3>Medidas Globales</h3>
+<ul><li><strong>Diámetro (D):</strong> max(dᵤᵥ) - máxima distancia</li><li><strong>Distancia media:</strong> d = ⟨dᵤᵥ⟩</li><li><strong>Eficiencia global:</strong> promedio de 1/dᵤᵥ (útil para pares desconectados)</li></ul>
+<h3>Conectividad</h3>
+<ul><li><strong>Conectado (conexo):</strong> camino entre cualquier par</li><li><strong>Componente gigante:</strong> mayor componente conectada</li></ul>
+<h3>Coeficiente de Clustering</h3>
+<p>Medida de densidad local: ¿vecinos de i son vecinos entre sí? Cᵢ = probabilidad de conexión entre vecinos.</p>
+<h3>Mezclado Selectivo</h3>
+<ul><li><strong>Asortativa:</strong> nodos similares se conectan entre sí</li><li><strong>Disortativa:</strong> nodos de una clase se conectan con otra clase</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase2-0">
+<p>1. ¿Qué es el diámetro de un grafo?</p>
+<ul class="options">
+<li data-qid="clase2-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Grado promedio</li>
+<li data-qid="clase2-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Máxima distancia entre cualquier par de nodos</li>
+<li data-qid="clase2-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Número de componentes</li>
+<li data-qid="clase2-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Número de enlaces</li>
+</ul>
+<div class="explanation" id="exp-clase2-0">D = max(dᵤᵥ) es la mayor distancia entre cualquier par de nodos.</div>
+</div>
+<div class="question" id="q-clase2-1">
+<p>2. ¿Qué mide el coeficiente de clustering?</p>
+<ul class="options">
+<li data-qid="clase2-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Número de vecinos</li>
+<li data-qid="clase2-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Probabilidad de que los vecinos estén conectados entre sí</li>
+<li data-qid="clase2-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Distancia media a todos los nodos</li>
+<li data-qid="clase2-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Peso promedio de enlaces</li>
+</ul>
+<div class="explanation" id="exp-clase2-1">Cᵢ mide la fracción de pares de vecinos de i que están conectados.</div>
+</div>
+<div class="question" id="q-clase2-2">
+<p>3. ¿Qué es la componente gigante?</p>
+<ul class="options">
+<li data-qid="clase2-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) El nodo con mayor grado</li>
+<li data-qid="clase2-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) La mayor componente conectada</li>
+<li data-qid="clase2-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) El grafo completo</li>
+<li data-qid="clase2-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Nodos con clustering alto</li>
+</ul>
+<div class="explanation" id="exp-clase2-2">La componente gigante es el subgrafo más grande donde todos los nodos están conectados.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase2">0/3</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase3">
+<h2>Clase 3: Modelos de Redes (ER, WS, BA)</h2>
+<div class="content">
+<h3>Tres Prototipos de Redes</h3>
+<h4>1. Erdös-Rényi (1959) - Red Aleatoria</h4>
+<ul><li><strong>G(N,p):</strong> N nodos, cada par conectado con prob p</li><li>Distribución de grado: <strong>Poisson</strong></li><li>Mundo pequeño: ⟨d⟩ ≈ ln(N)/ln(⟨k⟩)</li></ul>
+<h4>2. Watts-Strogatz (1998) - Mundo Pequeño</h4>
+<ul><li>Red regular + recableado aleatorio</li><li>Alto clustering + distancias cortas</li><li><strong>Enlaces débiles (weak ties):</strong> Granovetter (1973) - 60k+ citas</li><li>Comunidades interconectadas por enlaces débiles</li></ul>
+<h4>3. Barabási-Albert (1999) - Libre de Escala</h4>
+<ul><li><strong>Crecimiento + enlace preferencial</strong> (nodos nuevos → más conectados)</li><li>Ley de potencia: pₖ ~ k⁻ᵧ</li><li>Hubs hacen que la red sea pequeña</li></ul>
+<h3>Dos Visiones del Mundo Pequeño</h3>
+<ul><li><strong>W-S:</strong> comunidades + enlaces débiles (flujo)</li><li><strong>B-A:</strong> hubs (cohesividad)</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase3-0">
+<p>1. ¿Qué distribución tiene el grado en Erdös-Rényi?</p>
+<ul class="options">
+<li data-qid="clase3-0" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) Ley de potencia</li>
+<li data-qid="clase3-0" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) Normal</li>
+<li data-qid="clase3-0" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) Poisson</li>
+<li data-qid="clase3-0" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Uniforme</li>
+</ul>
+<div class="explanation" id="exp-clase3-0">En G(N,p) la distribución de grado es Poisson.</div>
+</div>
+<div class="question" id="q-clase3-1">
+<p>2. ¿Qué mecanismo genera libre de escala en BA?</p>
+<ul class="options">
+<li data-qid="clase3-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Recableado aleatorio</li>
+<li data-qid="clase3-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Crecimiento + enlace preferencial</li>
+<li data-qid="clase3-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Eliminación de nodos</li>
+<li data-qid="clase3-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Conexión uniforme</li>
+</ul>
+<div class="explanation" id="exp-clase3-1">BA tiene crecimiento y preferential attachment.</div>
+</div>
+<div class="question" id="q-clase3-2">
+<p>3. ¿Qué concepto sociológico se relaciona con Watts-Strogatz?</p>
+<ul class="options">
+<li data-qid="clase3-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Efecto mariposa</li>
+<li data-qid="clase3-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Enlaces débiles de Granovetter</li>
+<li data-qid="clase3-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Ley de grandes números</li>
+<li data-qid="clase3-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Principio de Peter</li>
+</ul>
+<div class="explanation" id="exp-clase3-2">WS sugiere mundos pequeños por comunidades + enlaces débiles (Granovetter 1973).</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase3">0/3</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase4">
+<h2>Clase 4: Centralidad y Propiedades</h2>
+<div class="content">
+<h3>Medidas de Centralidad</h3>
+<p>La centralidad (C) asigna un valor numérico a cada nodo. Es <strong>relativa a la red</strong> (solo comparable dentro de la misma).</p>
+<ul><li><strong>Grado:</strong> conexiones directas</li><li><strong>Intermediación:</strong> caminos más cortos que pasan por el nodo (flujo)</li><li><strong>Proximidad:</strong> inversa de suma de distancias</li><li><strong>Vector propio:</strong> importancia de vecinos importa</li><li><strong>PageRank:</strong> variante de Google</li></ul>
+<h3>Propiedades Emergentes</h3>
+<ul><li><strong>Mundo pequeño:</strong> distancias cortas + alto clustering</li><li><strong>Robustez:</strong> scale-free resisten fallos aleatorios pero son frágiles ante ataques a hubs</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase4-0">
+<p>1. ¿Qué mide la betweenness?</p>
+<ul class="options">
+<li data-qid="clase4-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Vecinos directos</li>
+<li data-qid="clase4-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Caminos más cortos que pasan por el nodo</li>
+<li data-qid="clase4-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Distancia inversa a todos</li>
+<li data-qid="clase4-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Importancia según vecinos</li>
+</ul>
+<div class="explanation" id="exp-clase4-0">Betweenness = cuántos shortest paths pasan por un nodo (rol de puente).</div>
+</div>
+<div class="question" id="q-clase4-1">
+<p>2. ¿Por qué scale-free es frágil ante ataques dirigidos?</p>
+<ul class="options">
+<li data-qid="clase4-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Pocos nodos</li>
+<li data-qid="clase4-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Eliminar hubs fragmenta la red</li>
+<li data-qid="clase4-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Todos con mismo grado</li>
+<li data-qid="clase4-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Sin componentes</li>
+</ul>
+<div class="explanation" id="exp-clase4-1">Los hubs mantienen conectividad. Ataque dirigado a ellos destruye la estructura.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase4">0/2</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase5a">
+<h2>Clase 5a: Stochastic Block Model</h2>
+<div class="content">
+<h3>De Heurísticas a Modelos Generativos</h3>
+<p><strong>Comunidad:</strong> grupo de nodos más conectados entre sí que con el resto. No hay noción universal.</p>
+<h3>Enfoque Clásico: Modularidad</h3>
+<ul><li>Mide densidad intra vs inter comunidad</li><li>Base de Louvain</li><li><strong>Problemas:</strong> comunidades espurias en ER, límite de resolución, no explica naturaleza</li></ul>
+<h3>SBM: Modelo Generativo</h3>
+<p>No optimizamos partición → buscamos modelo que <strong>exlique</strong> la red. Inferimos variables latentes.</p>
+<ol><li><strong>Paso 1:</strong> Partición nodos → bloques</li><li><strong>Paso 2:</strong> Conexión entre bloques (estructura global)</li><li><strong>Paso 3:</strong> Distribución de grado dentro de bloques (heterogeneidad)</li><li><strong>Paso 4:</strong> Red observada (realización concreta)</li></ol>
+<h3>Inferencia Estadística</h3>
+<ul><li>Observamos A, buscamos b, maximizamos P(b|A)</li><li>Equivale a verosimilitud penalizada por complejidad</li><li><strong>Planted partition model</strong> (caso especial) → recovera modularidad exacta</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase5a-0">
+<p>1. ¿Diferencia principal SBM vs Louvain?</p>
+<ul class="options">
+<li data-qid="clase5a-0" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) SBM es más rápido</li>
+<li data-qid="clase5a-0" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) SBM optimiza modularidad</li>
+<li data-qid="clase5a-0" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) SBM es generativo e infiere variables latentes, Louvain optimiza función ad-hoc</li>
+<li data-qid="clase5a-0" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Louvain solo grafos dirigidos</li>
+</ul>
+<div class="explanation" id="exp-clase5a-0">SBM infiere la partición más probable (generativo), Louvain optimiza modularidad (heurístico).</div>
+</div>
+<div class="question" id="q-clase5a-1">
+<p>2. ¿Qué problema tiene la modularidad?</p>
+<ul class="options">
+<li data-qid="clase5a-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Solo grafos pequeños</li>
+<li data-qid="clase5a-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Comunidades espurias + límite de resolución</li>
+<li data-qid="clase5a-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Solo grafos dirigidos</li>
+<li data-qid="clase5a-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Requiere K conocido</li>
+</ul>
+<div class="explanation" id="exp-clase5a-1">Modularidad detecta comunidades espurias y tiene límite de resolución.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase5a">0/2</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase5b">
+<h2>Clase 5b: GraphRAG y LLMs</h2>
+<div class="content">
+<h3>LLMs y sus Limitaciones</h3>
+<ul><li><strong>Alucinaciones:</strong> sonar verosímil ≠ decir la verdad</li><li><strong>Datos puntuales:</strong> dificultad con datos específicos/citas</li><li><strong>Knowledge cutoff:</strong> entrenados hasta cierto punto</li></ul>
+<h3>RAG (Retrieval-Augmented Generation)</h3>
+<ol><li><strong>Retrieval:</strong> buscar info en base externa</li><li><strong>Augmented:</strong> pregunta + fragmentos → prompt enriquecido</li><li><strong>Generation:</strong> respuesta basada en contexto</li></ol>
+<h3>Problemas del RAG Ingenuo</h3>
+<ul><li>Similaridad semántica ≠ Relevancia</li><li>Top-K → ruido, excesivamente local</li></ul>
+<h3>GraphRAG (Microsoft Research)</h3>
+<p>Idea central: usar <strong>modularidad del grafo</strong> para resúmenes más globales que top-k.</p>
+<ol><li><strong>Construcción grafo:</strong> LLM detecta entidades (→ nodos) y relaciones (→ enlaces)</li><li><strong>Detección comunidades:</strong> Leiden recursivo</li><li><strong>Resúmenes por comunidad</strong></li><li><strong>Consulta:</strong> respuestas parciales → unificación global</li></ol></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase5b-0">
+<p>1. ¿Idea central de GraphRAG?</p>
+<ul class="options">
+<li data-qid="clase5b-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Embeddings más grandes</li>
+<li data-qid="clase5b-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Usar modularidad del grafo para resúmenes más globales que top-k</li>
+<li data-qid="clase5b-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Entrenar LLM sobre grafos</li>
+<li data-qid="clase5b-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Eliminar recuperación</li>
+</ul>
+<div class="explanation" id="exp-clase5b-0">GraphRAG usa comunidades jerárquicas del grafo para resúmenes globales.</div>
+</div>
+<div class="question" id="q-clase5b-1">
+<p>2. ¿Qué algoritmo usa GraphRAG para comunidades?</p>
+<ul class="options">
+<li data-qid="clase5b-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Louvain</li>
+<li data-qid="clase5b-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Leiden recursivo</li>
+<li data-qid="clase5b-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) K-means</li>
+<li data-qid="clase5b-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) DBSCAN</li>
+</ul>
+<div class="explanation" id="exp-clase5b-1">GraphRAG usa Leiden de forma recursiva para comunidades jerárquicas.</div>
+</div>
+<div class="question" id="q-clase5b-2">
+<p>3. ¿Qué limitaciones de LLMs resuelve RAG?</p>
+<ul class="options">
+<li data-qid="clase5b-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Costo y velocidad</li>
+<li data-qid="clase5b-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Alucinaciones, datos específicos, knowledge cutoff</li>
+<li data-qid="clase5b-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Múltiples idiomas</li>
+<li data-qid="clase5b-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Hardware</li>
+</ul>
+<div class="explanation" id="exp-clase5b-2">RAG aborda alucinaciones, dificultad con datos específicos/citas, y knowledge cutoff.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase5b">0/3</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase7">
+<h2>Clase 7: Estadística y p-Values</h2>
+<div class="content">
+<h3>Tests de Hipótesis</h3>
+<p>Respuestas ordinales (mayor/menor/igual). El p-value determina significancia estadística.</p>
+<h3>¿Qué es un p-value?</h3>
+<p>"Probabilidad de observar nuestra muestra, o más extrema, si H0 es verdadera." <strong>NO</strong> es P(H0|datos).</p>
+<h3>Error Tipo I (α) y Tipo II (β)</h3>
+<ul><li><strong>α:</strong> falso positivo (declarar significativo sin serlo)</li><li><strong>β:</strong> falso negativo (declarar no significativo sin serlo)</li><li><strong>Potencia = 1-β</strong></li></ul>
+<h3>Comportamiento del p-value</h3>
+<ul><li><strong>H0 verdadera:</strong> distribución UNIFORME</li><li><strong>Efecto real:</strong> concentrado en valores bajos</li><li>El valor numérico NO mide la "fuerza" de la evidencia</li></ul>
+<h3>Crisis de Replicabilidad</h3>
+<ul><li>Open Science (2015): efecto bajó a mitad, p&lt;0.05 del 97% al 36%</li><li><strong>p-hacking:</strong> manipulación para obtener p&lt;0.05</li><li><strong>Sesgo de publicación:</strong> solo significativos se publican</li><li><strong>Ioannidis (2005):</strong> PPV depende de R, α, poder, sesgo u</li></ul>
+<h3>Declaración ASA (Wasserstein & Lazar, 2016)</h3>
+<ul><li>p-value NO mide tamaño de efecto ni importancia</li><li>NO mide P(H1 verdadera)</li><li>Conclusiones NO pueden basarse solo en pasar umbral</li></ul>
+<h3>Comparaciones Múltiples</h3>
+<ul><li>α=0.05, 5 tests → 17.5% falsos positivos</li><li><strong>FWER:</strong> Bonferroni (conservador), Holm, Hochberg</li><li><strong>FDR:</strong> Benjamini-Hochberg (N grande)</li></ul>
+<h3>Remuestreo</h3>
+<ul><li><strong>Permutaciones (sin reposición):</strong> tests de hipótesis</li><li><strong>Bootstrapping (con reposición):</strong> intervalos de confianza</li><li>No paramétricos (sin suposiciones de distribución)</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase7-0">
+<p>1. ¿Qué indica p-value de 0.03?</p>
+<ul class="options">
+<li data-qid="clase7-0" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) 3% prob de que H0 sea verdadera</li>
+<li data-qid="clase7-0" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) 3% prob de que H1 sea verdadera</li>
+<li data-qid="clase7-0" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) Si H0 fuera verdadera, prob de estos datos o más extremos = 3%</li>
+<li data-qid="clase7-0" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Efecto del 3%</li>
+</ul>
+<div class="explanation" id="exp-clase7-0">p-value es P(datos|H0), NO P(H0|datos).</div>
+</div>
+<div class="question" id="q-clase7-1">
+<p>2. ¿Distribución de p-values cuando H0 es verdadera?</p>
+<ul class="options">
+<li data-qid="clase7-1" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) Normal</li>
+<li data-qid="clase7-1" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) Poisson</li>
+<li data-qid="clase7-1" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) Uniforme</li>
+<li data-qid="clase7-1" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Exponencial</li>
+</ul>
+<div class="explanation" id="exp-clase7-1">Cuando H0 es verdadera, p-values se distribuyen uniformemente.</div>
+</div>
+<div class="question" id="q-clase7-2">
+<p>3. Diferencia permutaciones vs bootstrapping?</p>
+<ul class="options">
+<li data-qid="clase7-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Permutaciones paramétricas</li>
+<li data-qid="clase7-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Permutaciones sin reposición para tests, bootstrapping con reposición para IC</li>
+<li data-qid="clase7-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Son lo mismo</li>
+<li data-qid="clase7-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Bootstrapping requiere normalidad</li>
+</ul>
+<div class="explanation" id="exp-clase7-2">Permutaciones (sin reposición) para tests de hipótesis. Bootstrapping (con reposición) para IC.</div>
+</div>
+<div class="question" id="q-clase7-3">
+<p>4. ¿Qué REDUCE la PPV en Ioannidis?</p>
+<ul class="options">
+<li data-qid="clase7-3" data-idx="0" data-correct="3" onclick="checkAnswer(this)">A) Mayor poder</li>
+<li data-qid="clase7-3" data-idx="1" data-correct="3" onclick="checkAnswer(this)">B) Mayor R</li>
+<li data-qid="clase7-3" data-idx="2" data-correct="3" onclick="checkAnswer(this)">C) Menor sesgo</li>
+<li data-qid="clase7-3" data-idx="3" data-correct="3" onclick="checkAnswer(this)">D) Menor R (menores odds H1)</li>
+</ul>
+<div class="explanation" id="exp-clase7-3">Menor R reduce la PPV, más resultados publicados son falsos.</div>
+</div>
+<div class="question" id="q-clase7-4">
+<p>5. ¿Cuándo NO corregir por comparaciones múltiples?</p>
+<ul class="options">
+<li data-qid="clase7-4" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Muchos tests</li>
+<li data-qid="clase7-4" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Afirmación requiere TODAS significativas</li>
+<li data-qid="clase7-4" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) p &lt; 0.01</li>
+<li data-qid="clase7-4" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Usar Bonferroni</li>
+</ul>
+<div class="explanation" id="exp-clase7-4">Si la afirmación requiere que TODAS sean significativas, no corregir.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase7">0/5</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase8">
+<h2>Clase 8: Reducción de Dimensionalidad</h2>
+<div class="content">
+<h3>Maldición de la Dimensionalidad</h3>
+<ul><li>Volumen crece O(f) → datos sparse</li><li>Todos los puntos tienden a ser distantes</li><li>Multicolinealidad aumenta</li><li>Más atributos NO siempre mejora performance</li></ul>
+<h3>Reducción de Dimensionalidad</h3>
+<ul><li><strong>Ventajas:</strong> menor complejidad, menos ruido, mejor visualización</li><li><strong>Desventajas:</strong> pérdida de información, costo computacional</li></ul>
+<h3>Dos Familias</h3>
+<ul><li><strong>Feature selection:</strong> filtrar atributos no informativos</li><li><strong>Feature extraction:</strong> crear nuevos atributos combinando originales</li></ul>
+<h3>PCA</h3>
+<ul><li>Rotación ortogonal → máxima varianza</li><li> reversible (sin pérdida si se mantienen todos los PCs)</li><li>Se computa con SVD</li></ul>
+<h3>Técnicas No Lineales</h3>
+<ul><li><strong>MDS:</strong> preserva distancias pares (métrica vs no métrica)</li><li><strong>Isomap:</strong> geodésicas en grafo de vecinos</li><li><strong>t-SNE:</strong> distribución de distancias + locales. Parámetro: perplexity (5-50). Lento, puede "alucinar estructura"</li><li><strong>UMAP:</strong> más rápido, mejor geometría global, más reproducible. Parámetro: n_neighbors</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase8-0">
+<p>1. ¿Qué describe que todos los puntos son igualmente distantes en alta dimensión?</p>
+<ul class="options">
+<li data-qid="clase8-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Efecto mariposa</li>
+<li data-qid="clase8-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Maldición de la dimensionalidad</li>
+<li data-qid="clase8-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Ley grandes números</li>
+<li data-qid="clase8-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Sesgo selección</li>
+</ul>
+<div class="explanation" id="exp-clase8-0">Maldición de la dimensionalidad: volumen crece exponencialmente, datos sparse.</div>
+</div>
+<div class="question" id="q-clase8-1">
+<p>2. ¿Qué hace PCA?</p>
+<ul class="options">
+<li data-qid="clase8-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Elimina atributos menos correlacionados</li>
+<li data-qid="clase8-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Rotación ortogonal hacia componentes de máxima varianza</li>
+<li data-qid="clase8-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Selecciona subconjunto de atributos</li>
+<li data-qid="clase8-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Transformación no lineal</li>
+</ul>
+<div class="explanation" id="exp-clase8-1">PCA rota ortogonalmente hacia ejes de máxima varianza. Es reversible.</div>
+</div>
+<div class="question" id="q-clase8-2">
+<p>3. ¿Parámetro clave de t-SNE?</p>
+<ul class="options">
+<li data-qid="clase8-2" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) learning rate</li>
+<li data-qid="clase8-2" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) n_neighbors</li>
+<li data-qid="clase8-2" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) perplexity (balance local/global)</li>
+<li data-qid="clase8-2" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) min_dist</li>
+</ul>
+<div class="explanation" id="exp-clase8-2">Perplexity controla balance local/global. Rango 5-50.</div>
+</div>
+<div class="question" id="q-clase8-3">
+<p>4. ¿Por qué UMAP sobre t-SNE?</p>
+<ul class="options">
+<li data-qid="clase8-3" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Determinístico</li>
+<li data-qid="clase8-3" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Más rápido, mejor geometría global, más reproducible</li>
+<li data-qid="clase8-3" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Sin parámetros</li>
+<li data-qid="clase8-3" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Funciona con categóricos</li>
+</ul>
+<div class="explanation" id="exp-clase8-3">UMAP es más eficiente, preserva relaciones globales, más reproducible.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase8">0/4</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase9">
+<h2>Clase 9: Clustering - Algoritmos</h2>
+<div class="content">
+<h3>El Problema</h3>
+<p>Agrupar objetos maximizando distancias entre grupos, minimizando intra-grupos.</p>
+<h3>Tipos</h3>
+<ul><li><strong>Prototipo:</strong> k-means / k-medoids</li><li><strong>Jerárquico:</strong> aglomerativo</li><li><strong>Densidad:</strong> DBSCAN</li><li><strong>Difuso:</strong> c-means</li></ul>
+<h3>K-Means (Lloyd)</h3>
+<ol><li>Seleccionar K</li><li>Centroides iniciales</li><li>Asignar → recomputar → repetir</li><li>Hasta convergencia</li></ol>
+<p>NP-hard pero heurísticas convergen rápido a óptimos locales.</p>
+<h3>Jerárquico Aglomerativo</h3>
+<ul><li>Matriz similaridad → juntar cercanos → actualizar → un cluster</li><li>Complejidad O(N³)</li><li><strong>Linkages:</strong> Single (ruido), Complete (compacto), Ward (euclídeo)</li></ul>
+<h3>DBSCAN</h3>
+<ul><li>Core points (≥ minPts vecinos en radio ε)</li><li>Frontier points (alcanzables pero no core)</li><li>Ruido (ni core ni frontier)</li><li>Clusters de forma arbitraria</li></ul>
+<h3>K-Medoids (PAM)</h3>
+<ul><li>Centros = puntos reales → robusto a outliers</li><li>Funciona con distancias no euclídeas</li></ul>
+<h3>C-Means (Fuzzy)</h3>
+<ul><li>Peso wᵢⱼ ∈ [0,1] para cada par (punto, cluster)</li><li>Suma de pesos = 1 por punto</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase9-0">
+<p>1. Principal desventaja de k-means?</p>
+<ul class="options">
+<li data-qid="clase9-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Solo categóricos</li>
+<li data-qid="clase9-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) NP-hard + requiere K de antemano</li>
+<li data-qid="clase9-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Solo 2 dimensiones</li>
+<li data-qid="clase9-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Asigna todo a un cluster</li>
+</ul>
+<div class="explanation" id="exp-clase9-0">Función objetivo es NP-hard (óptimos locales) y requiere elegir K previamente.</div>
+</div>
+<div class="question" id="q-clase9-1">
+<p>2. ¿Qué encuentra clusters de forma arbitraria?</p>
+<ul class="options">
+<li data-qid="clase9-1" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) K-means</li>
+<li data-qid="clase9-1" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) K-medoids</li>
+<li data-qid="clase9-1" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) DBSCAN</li>
+<li data-qid="clase9-1" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Ward</li>
+</ul>
+<div class="explanation" id="exp-clase9-1">DBSCAN es basado en densidad, no asume forma esférica.</div>
+</div>
+<div class="question" id="q-clase9-2">
+<p>3. ¿Qué son puntos de frontera en DBSCAN?</p>
+<ul class="options">
+<li data-qid="clase9-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Core points con menos vecinos</li>
+<li data-qid="clase9-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Alcanzables desde core pero no core</li>
+<li data-qid="clase9-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Centro de cluster</li>
+<li data-qid="clase9-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Puntos más lejanos</li>
+</ul>
+<div class="explanation" id="exp-clase9-2">Frontera: dentro de ε de un core pero sin suficientes vecinos para ser core.</div>
+</div>
+<div class="question" id="q-clase9-3">
+<p>4. ¿Qué son distancias cofenéticas?</p>
+<ul class="options">
+<li data-qid="clase9-3" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Euclídeas entre centroides</li>
+<li data-qid="clase9-3" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Alturas del dendrograma donde se unen</li>
+<li data-qid="clase9-3" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Distancia máxima entre clusters</li>
+<li data-qid="clase9-3" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Distancia media entre pares</li>
+</ul>
+<div class="explanation" id="exp-clase9-3">Son las alturas del dendrograma donde dos elementos se unen.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase9">0/4</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase10a">
+<h2>Clase 10a: Distancias y Similaridades</h2>
+<div class="content">
+<h3>Matrices de Disimilaridad (N×N)</h3>
+<ul><li>d(a,b) ≥ 0, d(a,a) = 0, d(a,b) = d(b,a)</li><li><strong>Desigualdad triangular:</strong> d(a,b) ≤ d(a,c) + d(c,b)</li></ul>
+<h3>Ultramétrica</h3>
+<p>d(a,b) ≤ max{d(a,c), d(c,b)} → dendrogramas son ultramétricos.</p>
+<h3>Distancias Continuos</h3>
+<ul><li><strong>Minkowski:</strong> Manhattan (L1), Euclídea (L2)</li><li><strong>Canberra:</strong> sensible a valores pequeños</li><li><strong>Mahalanobis:</strong> accounta correlaciones</li></ul>
+<h3>Similaridades Continuos</h3>
+<ul><li><strong>Coseno:</strong> ángulo entre vectores</li><li><strong>Pearson:</strong> relación lineal</li></ul>
+<h3>Categóricos Binarios</h3>
+<ul><li><strong>Coincidencias:</strong> proporción de match</li><li><strong>Jaccard:</strong> intersección/unión (ignora ausencias)</li></ul>
+<h3>Linkages y Distancias</h3>
+<ul><li>Single/Complete/Average: no negativas, simétricas</li><li>Ward/Centroid: euclídeas</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase10a-0">
+<p>1. ¿Distancia de Mahalanobis?</p>
+<ul class="options">
+<li data-qid="clase10a-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Euclídea al cuadrado</li>
+<li data-qid="clase10a-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Accounta correlaciones entre variables</li>
+<li data-qid="clase10a-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Entre centroides</li>
+<li data-qid="clase10a-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Manhattan normalizada</li>
+</ul>
+<div class="explanation" id="exp-clase10a-0">Incorpora estructura de covarianza, mide distancia considerando correlaciones.</div>
+</div>
+<div class="question" id="q-clase10a-1">
+<p>2. ¿Coeficiente para binarios ignorando ausencias?</p>
+<ul class="options">
+<li data-qid="clase10a-1" data-idx="0" data-correct="2" onclick="checkAnswer(this)">A) Pearson</li>
+<li data-qid="clase10a-1" data-idx="1" data-correct="2" onclick="checkAnswer(this)">B) Coincidencias</li>
+<li data-qid="clase10a-1" data-idx="2" data-correct="2" onclick="checkAnswer(this)">C) Jaccard</li>
+<li data-qid="clase10a-1" data-idx="3" data-correct="2" onclick="checkAnswer(this)">D) Euclídea</li>
+</ul>
+<div class="explanation" id="exp-clase10a-1">Jaccard = intersección/unión, ignora ausencias compartidas.</div>
+</div>
+<div class="question" id="q-clase10a-2">
+<p>3. ¿Qué es ultramétrica?</p>
+<ul class="options">
+<li data-qid="clase10a-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Desigualdad triangular estándar</li>
+<li data-qid="clase10a-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) d(a,b) ≤ max{d(a,c), d(c,b)}</li>
+<li data-qid="clase10a-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Sin propiedades métricas</li>
+<li data-qid="clase10a-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Euclídea alta dimensión</li>
+</ul>
+<div class="explanation" id="exp-clase10a-2">Cumple desigualdad triangular fuerte. Propiedad de dendrogramas.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase10a">0/3</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase10b">
+<h2>Clase 10b: Validación de Clustering</h2>
+<div class="content">
+<h3>¿Por qué Validar?</h3>
+<ul><li>Siempre encontramos grupos → ¿son buenos?</li><li>Mejor K, comparar métodos</li></ul>
+<h3>Hopkins</h3>
+<ul><li>H ~ 0: hay clusters</li><li>H ~ 0.5: homogeneidad (no clusters)</li></ul>
+<h3>Validación Externa (con etiquetas)</h3>
+<ul><li><strong>Matriz de confusión</strong></li><li><strong>Van Dongen:</strong> 0 (mejor) - 1 (peor)</li><li><strong>Rand:</strong> 0 (peor) - 1 (mejor). Optimista.</li><li><strong>Rand Ajustado:</strong> corrige sesgo</li><li><strong>NMI:</strong> información mutua normalizada</li><li><strong>V-measure:</strong> media armónica homogeneidad + completitud</li></ul>
+<h3>Validación Interna (sin etiquetas)</h3>
+<ul><li><strong>Inercia (SSE):</strong> siempre decrece con K</li><li><strong>Codo (Elbow):</strong> buscar "codo" en curva inercia vs K</li><li><strong>Silhouette:</strong> -1 a +1 (similaridad intra vs inter cluster)</li><li><strong>Gap Statistic:</strong> inercia real vs datos uniformes</li></ul>
+<h3>No hay Medida Única</h3>
+<p>Cada método tiene consideraciones especiales. DBSCAN: eliminar ruido antes. C-means: traducir pesos a exclusivo.</p></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase10b-0">
+<p>1. ¿Qué indica Hopkins alto (~0.5)?</p>
+<ul class="options">
+<li data-qid="clase10b-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Fuerte clustering</li>
+<li data-qid="clase10b-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Homogeneidad (no clusters)</li>
+<li data-qid="clase10b-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) K óptimo alto</li>
+<li data-qid="clase10b-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Validación externa falla</li>
+</ul>
+<div class="explanation" id="exp-clase10b-0">H ~ 0.5 = homogeneidad, NO hay clusters. H ~ 0 = SÍ hay clusters.</div>
+</div>
+<div class="question" id="q-clase10b-1">
+<p>2. ¿Qué busca el método del codo?</p>
+<ul class="options">
+<li data-qid="clase10b-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Mínimo de inercia</li>
+<li data-qid="clase10b-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Punto donde inercia deja de decrecer significativamente</li>
+<li data-qid="clase10b-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Máximo de Silhouette</li>
+<li data-qid="clase10b-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Máximo gap</li>
+</ul>
+<div class="explanation" id="exp-clase10b-1">El codo es el cambio de pendiente en curva inercia vs K.</div>
+</div>
+<div class="question" id="q-clase10b-2">
+<p>3. ¿Qué mide Silhouette?</p>
+<ul class="options">
+<li data-qid="clase10b-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Inercia total</li>
+<li data-qid="clase10b-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Similaridad intra vs inter cluster más cercano</li>
+<li data-qid="clase10b-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Información mutua</li>
+<li data-qid="clase10b-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Proporción correctamente clasificados</li>
+</ul>
+<div class="explanation" id="exp-clase10b-2">Silhouette compara distancia media intra-cluster con al cluster más cercano. -1 a +1.</div>
+</div>
+<div class="question" id="q-clase10b-3">
+<p>4. ¿Qué es Gap Statistic?</p>
+<ul class="options">
+<li data-qid="clase10b-3" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Diferencia K real vs estimado</li>
+<li data-qid="clase10b-3" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Diferencia inercia real vs datos uniformes</li>
+<li data-qid="clase10b-3" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Proporción outliers</li>
+<li data-qid="clase10b-3" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Distancia entre centroides</li>
+</ul>
+<div class="explanation" id="exp-clase10b-3">Compara inercia real con la de datos uniformes de referencia.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase10b">0/4</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+<div class="topic" id="topic-clase12">
+<h2>Clase 12: Aplicaciones de Clustering</h2>
+<div class="content">
+<h3>Clasificación de Galaxias</h3>
+<p>Secuencia de Hubble: elípticas, espirales, barradas, irregulares, lenticulares. Morfología → estados dinámicos.</p>
+<h3>Representaciones</h3>
+<ul><li><strong>Bajo nivel:</strong> pixels</li><li><strong>Alto nivel:</strong> atributos latentes (feature extraction)</li></ul>
+<h3>Autoencoders</h3>
+<ul><li>No supervisado/self-supervised para feature extraction</li><li>Encoder + decoder + función objetivo</li><li>Comprime → reconstruye. No necesita etiquetas</li><li>Problema: domain-specific</li></ul>
+<h3>CNNs</h3>
+<ul><li>Datos estructurados espacialmente (imágenes)</li><li><strong>VGG16:</strong> 16 capas, 138M params, kernel 3×3, >92% ImageNet</li></ul>
+<h3>Transfer Learning</h3>
+<ul><li><strong>Feature extraction:</strong> modelo pre-entrenado fijo</li><li><strong>Fine-tuning:</strong> descongelar capas para nuevo dominio</li></ul></div>
+<div class="mcq-section">
+<h3>📝 Preguntas Multiple Choice</h3>
+<div class="question" id="q-clase12-0">
+<p>1. ¿Qué es un autoencoder?</p>
+<ul class="options">
+<li data-qid="clase12-0" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Supervisado para clasificación</li>
+<li data-qid="clase12-0" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Red que comprime y reconstruye, sin etiquetas</li>
+<li data-qid="clase12-0" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Clustering por densidad</li>
+<li data-qid="clase12-0" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Validación de clustering</li>
+</ul>
+<div class="explanation" id="exp-clase12-0">Autoencoder: red no supervised que comprime (encoder) y reconstruye (decoder).</div>
+</div>
+<div class="question" id="q-clase12-1">
+<p>2. ¿Dos etapas del Transfer Learning?</p>
+<ul class="options">
+<li data-qid="clase12-1" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Entrenamiento y predicción</li>
+<li data-qid="clase12-1" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) Feature extraction (congelado) y Fine-tuning</li>
+<li data-qid="clase12-1" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Pre y post-procesamiento</li>
+<li data-qid="clase12-1" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) CV y optimización</li>
+</ul>
+<div class="explanation" id="exp-clase12-1">Primero extractor fijo, luego fine-tuning descongelando capas.</div>
+</div>
+<div class="question" id="q-clase12-2">
+<p>3. ¿Qué es VGG16?</p>
+<ul class="options">
+<li data-qid="clase12-2" data-idx="0" data-correct="1" onclick="checkAnswer(this)">A) Algoritmo clustering</li>
+<li data-qid="clase12-2" data-idx="1" data-correct="1" onclick="checkAnswer(this)">B) CNN 16 capas, 138M params, &gt;92% ImageNet</li>
+<li data-qid="clase12-2" data-idx="2" data-correct="1" onclick="checkAnswer(this)">C) Reducción dimensional no lineal</li>
+<li data-qid="clase12-2" data-idx="3" data-correct="1" onclick="checkAnswer(this)">D) Modelo generativo grafos</li>
+</ul>
+<div class="explanation" id="exp-clase12-2">VGG16: CNN exitosa, 16 capas, 138M parámetros, kernel 3×3, &gt;92% accuracy ImageNet.</div>
+</div>
+<div class="score-bar"><span class="score" id="score-clase12">0/3</span><span class="label">respuestas correctas</span></div>
+</div>
+</div>
+
+</main>
+</div>
+<script>
+let completed=new Set();
+function showTopic(id){
+document.querySelectorAll('.topic').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.nav-list a').forEach(a=>a.classList.remove('active'));
+const el=document.getElementById('topic-'+id);
+if(el){el.classList.add('active');}
+const nav=document.querySelector('[data-topic="'+id+'"]');
+if(nav){nav.classList.add('active');}
+if(!completed.has(id)){completed.add(id);updateProgress();}
+document.querySelector('.sidebar').classList.remove('open');
+window.scrollTo(0,0);
+}
+function updateProgress(){
+const total=document.querySelectorAll('.topic').length;
+const pct=(completed.size/total)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+document.getElementById('progressText').textContent=completed.size+'/'+total+' temas completados';
+}
+function checkAnswer(li){
+const qid=li.getAttribute('data-qid');
+const idx=parseInt(li.getAttribute('data-idx'));
+const correct=parseInt(li.getAttribute('data-correct'));
+const siblings=document.querySelectorAll('[data-qid="'+qid+'"]');
+siblings.forEach(s=>{s.classList.add('disabled');});
+if(idx===correct){li.classList.add('correct');}
+else{li.classList.add('wrong');siblings[correct].classList.add('correct');}
+document.getElementById('exp-'+qid).classList.add('show');
+updateScore(qid.split('-')[0]);
+}
+function updateScore(tid){
+const qids=document.querySelectorAll('[data-qid^="'+tid+'-"]');
+const total=new Set();const correct=new Set();
+qids.forEach(q=>{const id=q.getAttribute('data-qid');total.add(id);if(q.classList.contains('correct')){correct.add(id);}});
+const el=document.getElementById('score-'+tid);
+if(el){el.textContent=correct.size+'/'+Math.floor(total.size/4)+' respuestas correctas';}
+}
+showTopic('clase1');
+</script>
+</body>
+</html>
